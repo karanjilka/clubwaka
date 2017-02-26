@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * hook_theme
+ */
+function event_theme()
+{
+    return array(
+        'upcomming_events' => array(
+            'variables' => array(),
+            'template'  => 'templates/upcomming-events',
+        ),
+    );
+}
+
+/**
+ * hook_node_presave
+ */
+function event_node_presave($node)
+{
+    if ($node->type = "event") {
+        $title = $node->field_event_name['und'][0]['value'];
+        $title .= ' - ' . date('l', strtotime($node->field_event_date['und'][0]['value']));
+        $title .= ' ' . $node->field_event_location['und'][0]['locality'];
+        $node->title = $title;
+    }
+}
+
+/**
+ * hook_block_info
+ */
+function event_block_info()
+{
+    $blocks['upcomming_events'] = array(
+        'info' => t('Upcomming Events'),
+    );
+    return $blocks;
+}
+
+/**
+ * hook_block_view
+ */
+function event_block_view($delta = '')
+{
+    // The $delta parameter tells us which block is being requested.
+    switch ($delta) {
+        case 'upcomming_events':
+            $block['subject'] = t('Upcomming Events');
+            $block['content'] = _upcomming_events_contents();
+            break;
+    }
+    return $block;
+}
+
+/**
+ * Get Upcoming events content
+ */
+function _upcomming_events_contents()
+{
+    $query = db_select('node');
+    $query->fields('node', array('nid'));
+    $query->join('field_data_field_event_date', 'event_date', 'node.nid=event_date.entity_id');
+    $query->condition('node.type', 'event');
+    $query->condition('event_date.field_event_date_value', date('Y-m-d', time()), '>=');
+    $query->orderBy('created', 'ASC');
+    $query->range(0, 3);
+    $rows = $query->execute()->fetchCol();
+
+    $nodes = node_load_multiple($rows);
+    return theme('upcomming_events', array('nodes' => $nodes));
+}

@@ -1,0 +1,9 @@
+name = Event
+description = "Event Custom module"
+package = Module by Karan
+core = 7.x
+version = "7.x-1.0"
+core = "7.x"
+datestamp = "1487808000"
+dependencies[] = event_feature
+
