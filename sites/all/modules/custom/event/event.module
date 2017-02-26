@@ -62,7 +62,7 @@ function _upcomming_events_contents()
     $query->join('field_data_field_event_date', 'event_date', 'node.nid=event_date.entity_id');
     $query->condition('node.type', 'event');
     $query->condition('event_date.field_event_date_value', date('Y-m-d', time()), '>=');
-    $query->orderBy('created', 'ASC');
+    $query->orderBy('event_date.field_event_date_value', 'ASC');
     $query->range(0, 3);
     $rows = $query->execute()->fetchCol();
 
